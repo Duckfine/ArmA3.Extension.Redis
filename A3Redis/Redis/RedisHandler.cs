@@ -10,22 +10,15 @@ namespace A3Redis.Redis.Handler
 {
   public class RedisHandler
   {
-    public const int BUFFERSIZE = 1024;
 
-
-    Socket m_socket;
     NetworkStream m_netstream;
-    BufferedStream m_buffStream;
-
-
-
+    TcpClient m_tcpClient;
 
 
 
     String m_hostname;
     int m_port;
     string m_password;
-
 
 
 
@@ -36,30 +29,30 @@ namespace A3Redis.Redis.Handler
       m_password = password;
     }
 
-
+    #region Connecting
     public void Connect()
     {
-      this.m_socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-      this.m_socket.NoDelay = true;
-      this.m_socket.Connect(this.m_hostname, this.m_port);
 
-      if (m_socket.Connected)
+
+      m_tcpClient = new TcpClient();
+      m_tcpClient.Connect(m_hostname, m_port);
+
+      if(m_tcpClient.Connected)
       {
         Console.WriteLine("Socket nun zum Server verbunden!");
-        this.m_buffStream = new BufferedStream((Stream)new NetworkStream(this.m_socket), 16384);
+        m_netstream = m_tcpClient.GetStream();
       }
       else
       {
-        this.m_socket.Close();
-        this.m_socket = (Socket)null;
-        Console.WriteLine("Cant connect to Socket");
+        Console.WriteLine("Verbindung fehlgeschlagen!");
+
       }
     }
 
     public void Disconnect()
     {
-      m_socket.Shutdown(SocketShutdown.Both);
-      m_socket.Disconnect(true);
+      m_tcpClient.Close();
+
       Console.WriteLine("Verbindung wurde getrennt");
     }
 
@@ -70,64 +63,177 @@ namespace A3Redis.Redis.Handler
     }
 
 
-    public void CheckConnection()
+    public bool CheckConnection()
     {
-
+      try
+      {
+        string[] toSend = { "INFO" };
+        SendBuildCommand(toSend);
+        //todo handle response
+        return true;
+      } catch
+      {
+        return false;
+      }
     }
 
+    #endregion Connecting
 
-    public void SendSimpleCommand(string command)
+    #region Core
+
+
+    public void SendBuildCommand(String[] args)
     {
       StringBuilder output = new StringBuilder("*");
+      output.Append(args.Length + "\r\n");
 
-      string[] args = command.Split(' ');
-      int len = args.Length;
-      output.Append(len + "\r\n");
-
-      foreach (String arg in args)
+      foreach (string item in args)
       {
-        len = arg.Length;
-        output.Append("$" + len + "\r\n" + arg + "\r\n");
+        output.Append("$" + item.Length + "\r\n" + item + "\r\n");
       }
-
-
-      m_socket.Send(Encoding.UTF8.GetBytes(output.ToString()));
-
+      String toSend = output.ToString();
+      byte[] bytes = Encoding.UTF8.GetBytes(toSend);
+      m_netstream.Write(bytes, 0, bytes.Length);
     }
 
-
-    public string ReadSingleLineFromStream()
+    private string GetResponse()
     {
+      byte[] bytes = new byte[m_tcpClient.ReceiveBufferSize];
 
-      StringBuilder stringBuilder = new StringBuilder();
-      int num = m_buffStream.ReadByte();
-      while (num != -1)
-      {
-        num = m_buffStream.ReadByte();
-        switch (num)
-        {
-          case 10: //newline
-            stringBuilder.Append("\n");
-            break;
-          default:
-            stringBuilder.Append((char)num);
-            continue;
-        }
-      }
-      return stringBuilder.ToString();
+      // Read can return anything from 0 to numBytesToRead. 
+      // This method blocks until at least one byte is read.
+      m_netstream.Read(bytes, 0, (int)m_tcpClient.ReceiveBufferSize);
+
+      // Returns the data received from the host to the console.
+      string returndata = Encoding.UTF8.GetString(bytes);
+
+      return returndata;
     }
+
+
+    public string HandleResponse()
+    {
+      //For Simple Strings the first byte of the reply is "+"
+      //For Errors the first byte of the reply is "-"
+      //For Integers the first byte of the reply is ":"
+      //For Bulk Strings the first byte of the reply is "$"
+      //For Arrays the first byte of the reply is "*"
+      String rawResp = GetResponse().Trim('\0');
+      rawResp = rawResp.Replace("\n", "");
+      String[] proc = rawResp.Split('\r');
+
+      if (proc[0].StartsWith("+"))// Simple String
+      {
+        Console.WriteLine("Simple String received");
+        proc[0] = proc[0].Substring(1);
+        return proc[0];
+      } 
+      else  if
+      (proc[0].StartsWith("-")) // Error
+      {
+
+      }
+      else  if
+      (proc[0].StartsWith(":")) // Integer
+      {
+        proc[0] = proc[0].Substring(1);
+        return proc[0];
+      }
+      else  if
+      (proc[0].StartsWith("$")) // Bulk String (More than 1 string)
+      {
+        if (proc[0] == "$-1\r") return null; //Null returned
+        return proc[1];
+      }
+
+      return rawResp; 
+
+    }
+
+
+
+
+    #endregion Core
+
+
+
+
+
+    #region Setters
+
+    public void SetString(String key, String value)
+    {
+      string[] args = {"SET", key, value };
+      SendBuildCommand(args);
+    }
+
+    public void AddToList(String key, String value)
+    {
+      string[] args = { "RPUSH", key, value };
+      SendBuildCommand(args);
+    }
+
+    public void ListUpdate(String key, String index, String value)
+    {
+      string[] args = { "LSET", key, index, value };
+      SendBuildCommand(args);
+    }
+
+    public void KeyDelete(String key)
+    {
+      string[] args = { "DEL", key};
+      SendBuildCommand(args);
+
+    }
+
+
+
+
+
+    #endregion Setters
+
+    #region Getters
+
+
+
+    public bool KeyExists(string key)
+    {
+      string[] args = { "EXISTS", key };
+      SendBuildCommand(args);
+      string result = HandleResponse();
+
+      if(result == "1")
+      {
+        return true;
+      } else
+      {
+        return false;
+      }
+
+    }
+
+    public void GetEntry(string key)
+    {
+      string[] args = { "GET", key };
+      SendBuildCommand(args);
+    }
+
+
+
+    public void ListGetEntry(string key, string index)
+    {
+      string[] args = { "LINDEX", key, index.ToString() };
+
+      SendBuildCommand(args);
+    }
+
+
+    #endregion
+
+
+
+
   }
-
-
-
-
-
-
-
-
-
-
-
 
 
 
