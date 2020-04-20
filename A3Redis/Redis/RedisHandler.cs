@@ -6,7 +6,7 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace A3Redis.Redis.Handler
+namespace A3Redis.Redis
 {
   public class RedisHandler
   {
@@ -96,7 +96,9 @@ namespace A3Redis.Redis.Handler
       m_netstream.Write(bytes, 0, bytes.Length);
     }
 
-    private string GetResponse()
+
+
+      private string GetResponse()
     {
       byte[] bytes = new byte[m_tcpClient.ReceiveBufferSize];
 
@@ -151,39 +153,46 @@ namespace A3Redis.Redis.Handler
     }
 
 
+    private string SendCommand(int dbid, string[] args)
+    {
+      string[] send = { "SELECT", dbid.ToString() };
+      SendBuildCommand(send);
+      HandleResponse();
+      SendBuildCommand(args);
+      return HandleResponse();
+    }
+
+
+
 
 
     #endregion Core
 
 
-
-
-
     #region Setters
 
-    public void SetString(String key, String value)
+    public string SetString(int dbid, String key, String value)
     {
       string[] args = {"SET", key, value };
-      SendBuildCommand(args);
+      return SendCommand(dbid, args);
     }
 
-    public void AddToList(String key, String value)
+    public string AddToList(int dbid, String key, String value)
     {
       string[] args = { "RPUSH", key, value };
-      SendBuildCommand(args);
+      return SendCommand(dbid, args);
     }
 
-    public void ListUpdate(String key, String index, String value)
+    public string ListUpdate(int dbid, String key, String index, String value)
     {
       string[] args = { "LSET", key, index, value };
-      SendBuildCommand(args);
+      return SendCommand(dbid, args);
     }
 
-    public void KeyDelete(String key)
+    public string KeyDelete(int dbid, String key)
     {
       string[] args = { "DEL", key};
-      SendBuildCommand(args);
-
+      return SendCommand(dbid, args);
     }
 
 
@@ -196,11 +205,11 @@ namespace A3Redis.Redis.Handler
 
 
 
-    public bool KeyExists(string key)
+    public bool KeyExists(int dbid, string key)
     {
       string[] args = { "EXISTS", key };
-      SendBuildCommand(args);
-      string result = HandleResponse();
+
+      string result = SendCommand(dbid, args);
 
       if(result == "1")
       {
@@ -212,33 +221,32 @@ namespace A3Redis.Redis.Handler
 
     }
 
-    public void GetEntry(string key)
+    public string GetEntry(int dbid, string key)
     {
       string[] args = { "GET", key };
-      SendBuildCommand(args);
+
+      return SendCommand(dbid, args);
     }
 
 
 
-    public void ListGetEntry(string key, string index)
+    public string ListGetEntry(int dbid, string key, string index)
     {
       string[] args = { "LINDEX", key, index.ToString() };
 
-      SendBuildCommand(args);
+      return SendCommand(dbid, args);
     }
 
+    public string ListGetSize(int dbid, string key)
+    {
+      string[] args = { "LLEN", key };
+      
+      return SendCommand(dbid, args);
+    }
 
     #endregion
 
 
 
-
   }
-
-
-
-
-
-
-
 }

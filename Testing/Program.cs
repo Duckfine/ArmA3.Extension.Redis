@@ -32,7 +32,7 @@ namespace Testing
             break;
         }
 
-        Console.WriteLine(A3Redis.A3Redis.DUCExtension(input, 1024));
+       Console.WriteLine(A3Redis.A3Redis.DUCExtension(input, 1024));
 
 
 

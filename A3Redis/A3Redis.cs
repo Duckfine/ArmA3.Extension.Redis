@@ -1,7 +1,6 @@
 ﻿using A3Redis.Redis;
-using A3Redis.Redis.Handler;
 using A3Redis_CS.util;
-//using Maca134.Arma.DllExport;
+using Maca134.Arma.DllExport;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -51,7 +50,7 @@ namespace A3Redis
 
     private static string ret;
 
-    private static string hostname = "192.168.178.50";
+    private static string hostname = "127.0.0.1";
     private static int port = 6379;
     private static string password = "";
 
@@ -66,7 +65,7 @@ namespace A3Redis
 
 
 
-    //[ArmaDllExport]
+    [ArmaDllExport]
     public static string DUCExtension(string function, int outputSize)
     {
       if (FirstStart)
@@ -78,9 +77,9 @@ namespace A3Redis
       ret = "";
       String key, value, index, strresult = "";
       bool isNumeric;
+      int intresult, dbid;
 
       //todo connection check with every call
-
 
 
     String[] parameter = function.Split(':');
@@ -88,7 +87,7 @@ namespace A3Redis
       switch (parameter[0])
       {
         case "version":
-          ret = "A3Redis by Duckfine V0100";
+          ret = "A3Redis by Duckfine V0110";
           break;
 
 
@@ -108,7 +107,7 @@ namespace A3Redis
               connection.Reconnect(); //todo checks
               return "true";
 
-            case "send": //should not be activated --> security issues
+            case "send": //should not be activated --> security issues disable in release
               String[] args = new string[parameter.Length - 2];
               for (int i = 2; i < parameter.Length; i++)
               {
@@ -120,8 +119,9 @@ namespace A3Redis
               break;
 
             case "exists": //done
-              key = parameter[2];
-              bool result = connection.KeyExists(key);
+              dbid = Int32.Parse(parameter[2]);
+              key = parameter[3];
+              bool result = connection.KeyExists(dbid, key);
               if (result)
               {
                 return RETURNTRUE;
@@ -131,11 +131,10 @@ namespace A3Redis
               }
 
             case "set": //done
-
-              key = parameter[2];
-              value = parameter[3];
-              connection.SetString(key, value);
-              strresult = connection.HandleResponse();
+              dbid = Int32.Parse(parameter[2]);
+              key = parameter[3];
+              value = parameter[4];
+              strresult = connection.SetString(dbid, key, value);
               if(strresult == "OK")
               {
                 return RETURNTRUE;
@@ -145,16 +144,17 @@ namespace A3Redis
               }
             case "get": //done
 
-              key = parameter[2];
-              connection.GetEntry(key);
-              strresult = connection.HandleResponse();
+              dbid = Int32.Parse(parameter[2]);
+              key = parameter[3];
+              strresult = connection.GetEntry(dbid, key);
               return strresult;
 
 
 
             case "delete": //done
-              connection.KeyDelete(parameter[2]);
-              strresult = connection.HandleResponse();
+              dbid = Int32.Parse(parameter[2]);
+              key = parameter[3];
+              strresult = connection.KeyDelete(dbid, key);
               if(strresult == "1")
               {
                 return RETURNTRUE; //erfolgreich gelöscht
@@ -165,12 +165,11 @@ namespace A3Redis
 
 
             case "listadd": //done
-
-              key = parameter[2];
-              value = parameter[3];
-              connection.AddToList(key, value);
-              strresult = connection.HandleResponse();
-              isNumeric = int.TryParse(strresult, out int intresult);
+              dbid = Int32.Parse(parameter[2]);
+              key = parameter[3];
+              value = parameter[4];
+              strresult = connection.AddToList(dbid, key, value);
+              isNumeric = int.TryParse(strresult, out intresult);
               if (isNumeric)
               {
                 return RETURNTRUE; //erfolgreich eingefügt
@@ -182,19 +181,33 @@ namespace A3Redis
 
 
             case "listget": //done
-              index = parameter[2];
-              key = parameter[3];
-              connection.ListGetEntry(index, key);
-              strresult = connection.HandleResponse();
+              dbid = Int32.Parse(parameter[2]);
+              index = parameter[3];
+              key = parameter[4];
+              strresult = connection.ListGetEntry(dbid, index, key);
               return strresult;
 
+            case "listsize": //done
+              dbid = Int32.Parse(parameter[2]);
+              key = parameter[3];
+              strresult = connection.ListGetSize(dbid, key);
+              isNumeric = int.TryParse(strresult, out intresult);
+              if (isNumeric)
+              {
+                return intresult.ToString(); //erfolgreich eingefügt
+              }
+              else
+              {
+                return RETURNFALSE; //nicht erfolgreich eingefügt unnötig?
+              }
 
-            case "listupdate":
-              key = parameter[2];
-              index = parameter[3];
-              value = parameter[4];
-              connection.ListUpdate(key, index, value);
-              strresult = connection.HandleResponse();
+
+            case "listupdate": //done
+              dbid = Int32.Parse(parameter[2]);
+              key = parameter[3];
+              index = parameter[4];
+              value = parameter[5];
+              strresult = connection.ListUpdate(dbid, key, index, value);
               if(strresult == "OK")
               {
                 return RETURNTRUE;
@@ -226,15 +239,8 @@ namespace A3Redis
 
 
     }
-    public static void Main(string[] args)
-    {
-      while (true)
-      {
-        Console.Write(">");
-        string input = Console.ReadLine();
-        Console.WriteLine(DUCExtension(input, 1024));
-      }
-    }
+
+
 
 
   }
