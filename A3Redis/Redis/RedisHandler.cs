@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net.Sockets;
@@ -220,6 +221,26 @@ namespace A3Redis.Redis
       }
 
     }
+
+
+    public string DBSize(int dbid)
+    {
+      string[] args = { "DBSIZE" };
+
+      string result = SendCommand(dbid, args);
+
+      if(int.TryParse(result, out int res) || res < 0)
+      {
+        return res.ToString();
+      }
+      return "-1";
+
+
+
+    }
+
+
+
 
     public string GetEntry(int dbid, string key)
     {

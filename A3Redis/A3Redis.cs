@@ -150,6 +150,14 @@ namespace A3Redis
               return strresult;
 
 
+            case "dbsize":
+              dbid = Int32.Parse(parameter[2]);
+              strresult = connection.DBSize(dbid);
+
+              return strresult;
+
+
+
 
             case "delete": //done
               dbid = Int32.Parse(parameter[2]);
