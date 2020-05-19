@@ -4,6 +4,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net.Sockets;
+using System.Runtime.Remoting.Proxies;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -38,7 +39,7 @@ namespace A3Redis.Redis
       m_tcpClient = new TcpClient();
       m_tcpClient.Connect(m_hostname, m_port);
 
-      if(m_tcpClient.Connected)
+      if (m_tcpClient.Connected)
       {
         Console.WriteLine("Socket nun zum Server verbunden!");
         m_netstream = m_tcpClient.GetStream();
@@ -72,7 +73,8 @@ namespace A3Redis.Redis
         SendBuildCommand(toSend);
         //todo handle response
         return true;
-      } catch
+      }
+      catch
       {
         return false;
       }
@@ -99,7 +101,7 @@ namespace A3Redis.Redis
 
 
 
-      private string GetResponse()
+    private string GetResponse()
     {
       byte[] bytes = new byte[m_tcpClient.ReceiveBufferSize];
 
@@ -122,34 +124,107 @@ namespace A3Redis.Redis
       //For Bulk Strings the first byte of the reply is "$"
       //For Arrays the first byte of the reply is "*"
       String rawResp = GetResponse().Trim('\0');
+      Console.WriteLine(rawResp);
       rawResp = rawResp.Replace("\n", "");
+      Console.WriteLine(rawResp);
       String[] proc = rawResp.Split('\r');
+
+      Console.WriteLine("Proc[]: " + string.Join(",", proc));
+
+      Console.WriteLine("Proc [0]" + proc[0]);
+
 
       if (proc[0].StartsWith("+"))// Simple String
       {
         Console.WriteLine("Simple String received");
         proc[0] = proc[0].Substring(1);
         return proc[0];
-      } 
-      else  if
-      (proc[0].StartsWith("-")) // Error
+      }
+      else if
+     (proc[0].StartsWith("-")) // Error
       {
 
       }
-      else  if
-      (proc[0].StartsWith(":")) // Integer
+      else if (proc[0].StartsWith(":")) // Integer
       {
         proc[0] = proc[0].Substring(1);
         return proc[0];
       }
-      else  if
-      (proc[0].StartsWith("$")) // Bulk String (More than 1 string)
+      else if (proc[0].StartsWith("$")) // Bulk String (More than 1 string)
       {
         if (proc[0] == "$-1\r") return null; //Null returned
         return proc[1];
       }
+      else if (proc[0].StartsWith("*")) // array
+      {
 
-      return rawResp; 
+
+        int arrSize;
+        Console.WriteLine("proc: " + String.Join(",", proc));
+        if (!Int32.TryParse(proc[0].Substring(1), out arrSize)) return rawResp; // Failed
+        string[] arr = String.Join("", proc).Split('$');
+        if (!int.TryParse(arr[0].Replace("*", ""), out arrSize)) return rawResp; // Failed
+
+        Console.WriteLine("Arraysize: " + arrSize);
+        if (arrSize <= 0) return "[]";
+
+        string result = "["; // like [1,2,4] in an compilable a3 array
+
+        Console.WriteLine("Arraysize: " + arrSize);
+
+        for (int i = 1; i < arrSize + 1; i++)
+        {
+          Console.WriteLine("arr[i]: " + arr[i]);
+          int sub;
+          string tmp;
+          string toAdd;
+          if (arr[i].Length < 12) // delete not needed redis chars
+          {
+            sub = 1;
+          }
+          else
+          {
+            sub = 2;
+          }
+          tmp = arr[i].Substring(sub);
+
+
+          Console.WriteLine("tmp i: " + tmp);
+
+          if (tmp.ToLower() == "false") // bool?
+          {
+            toAdd = "false";
+          }
+          else if (tmp.ToLower() == "true") // bool?
+          {
+            toAdd = "true";
+          }
+          else if (tmp.ToLower().StartsWith("{") && tmp.ToLower().EndsWith("}")) // check if code is sent
+          {
+            toAdd = tmp;
+          }
+          else
+          {
+            toAdd = "\"\"" + tmp + "\"\"";
+          }
+
+          Console.WriteLine("toAdd i:" + toAdd);
+
+          result = result + toAdd + ", ";
+
+
+        }
+        result = result.Substring(0, result.Length - 2);
+        result += "]";
+
+        Console.WriteLine("Result: " + result);
+
+
+
+
+      }
+
+      return rawResp;
 
     }
 
@@ -174,7 +249,7 @@ namespace A3Redis.Redis
 
     public string SetString(int dbid, String key, String value)
     {
-      string[] args = {"SET", key, value };
+      string[] args = { "SET", key, value };
       return SendCommand(dbid, args);
     }
 
@@ -192,7 +267,7 @@ namespace A3Redis.Redis
 
     public string KeyDelete(int dbid, String key)
     {
-      string[] args = { "DEL", key};
+      string[] args = { "DEL", key };
       return SendCommand(dbid, args);
     }
 
@@ -212,10 +287,11 @@ namespace A3Redis.Redis
 
       string result = SendCommand(dbid, args);
 
-      if(result == "1")
+      if (result == "1")
       {
         return true;
-      } else
+      }
+      else
       {
         return false;
       }
@@ -229,7 +305,7 @@ namespace A3Redis.Redis
 
       string result = SendCommand(dbid, args);
 
-      if(int.TryParse(result, out int res) || res < 0)
+      if (int.TryParse(result, out int res) || res < 0)
       {
         return res.ToString();
       }
@@ -261,7 +337,7 @@ namespace A3Redis.Redis
     public string ListGetSize(int dbid, string key)
     {
       string[] args = { "LLEN", key };
-      
+
       return SendCommand(dbid, args);
     }
 
