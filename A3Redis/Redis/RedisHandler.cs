@@ -124,14 +124,10 @@ namespace A3Redis.Redis
       //For Bulk Strings the first byte of the reply is "$"
       //For Arrays the first byte of the reply is "*"
       String rawResp = GetResponse().Trim('\0');
-      Console.WriteLine(rawResp);
       rawResp = rawResp.Replace("\n", "");
-      Console.WriteLine(rawResp);
       String[] proc = rawResp.Split('\r');
 
-      Console.WriteLine("Proc[]: " + string.Join(",", proc));
 
-      Console.WriteLine("Proc [0]" + proc[0]);
 
 
       if (proc[0].StartsWith("+"))// Simple String
@@ -160,21 +156,17 @@ namespace A3Redis.Redis
 
 
         int arrSize;
-        Console.WriteLine("proc: " + String.Join(",", proc));
         if (!Int32.TryParse(proc[0].Substring(1), out arrSize)) return rawResp; // Failed
         string[] arr = String.Join("", proc).Split('$');
         if (!int.TryParse(arr[0].Replace("*", ""), out arrSize)) return rawResp; // Failed
 
-        Console.WriteLine("Arraysize: " + arrSize);
         if (arrSize <= 0) return "[]";
 
         string result = "["; // like [1,2,4] in an compilable a3 array
 
-        Console.WriteLine("Arraysize: " + arrSize);
 
         for (int i = 1; i < arrSize + 1; i++)
         {
-          Console.WriteLine("arr[i]: " + arr[i]);
           int sub;
           string tmp;
           string toAdd;
@@ -189,7 +181,6 @@ namespace A3Redis.Redis
           tmp = arr[i].Substring(sub);
 
 
-          Console.WriteLine("tmp i: " + tmp);
 
           if (tmp.ToLower() == "false") // bool?
           {
@@ -208,7 +199,6 @@ namespace A3Redis.Redis
             toAdd = "\"\"" + tmp + "\"\"";
           }
 
-          Console.WriteLine("toAdd i:" + toAdd);
 
           result = result + toAdd + ", ";
 
@@ -217,9 +207,8 @@ namespace A3Redis.Redis
         result = result.Substring(0, result.Length - 2);
         result += "]";
 
-        Console.WriteLine("Result: " + result);
 
-
+        return result;
 
 
       }
@@ -310,9 +299,12 @@ namespace A3Redis.Redis
         return res.ToString();
       }
       return "-1";
+    }
 
-
-
+    public string DBKeys(int dbid, string regex)
+    {
+      string[] args = { "KEYS", regex };
+      return SendCommand(dbid, args);
     }
 
 

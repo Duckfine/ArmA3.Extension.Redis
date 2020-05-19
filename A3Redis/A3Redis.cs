@@ -156,6 +156,14 @@ namespace A3Redis
 
               return strresult;
 
+            case "dbkeys":
+
+              dbid = Int32.Parse(parameter[2]);
+              key = parameter[3];
+              strresult = connection.DBKeys(dbid, key);
+              return strresult;
+
+
 
 
 
