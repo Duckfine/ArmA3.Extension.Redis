@@ -286,6 +286,23 @@ namespace A3Redis.Redis
       }
 
     }
+    public string DBKeys(int dbid, string regex)
+    {
+      string[] args = { "KEYS", regex };
+      return SendCommand(dbid, args);
+    }
+
+
+    public string DBFlush(int dbid)
+    {
+      string[] args = { "FLUSHDB" };
+      return SendCommand(dbid, args);
+    }
+
+
+
+
+
 
 
     public string DBSize(int dbid)
@@ -301,11 +318,7 @@ namespace A3Redis.Redis
       return "-1";
     }
 
-    public string DBKeys(int dbid, string regex)
-    {
-      string[] args = { "KEYS", regex };
-      return SendCommand(dbid, args);
-    }
+    
 
 
 

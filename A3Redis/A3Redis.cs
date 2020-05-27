@@ -130,7 +130,7 @@ namespace A3Redis
                 return RETURNFALSE;
               }
 
-            case "set": //done
+            case "set": // done
               dbid = Int32.Parse(parameter[2]);
               key = parameter[3];
               value = parameter[4];
@@ -142,32 +142,36 @@ namespace A3Redis
               {
                 return RETURNFALSE;
               }
-            case "get": //done
 
+
+            case "get": // done
               dbid = Int32.Parse(parameter[2]);
               key = parameter[3];
               strresult = connection.GetEntry(dbid, key);
               return strresult;
 
 
-            case "dbsize":
+            case "dbflush": // done
               dbid = Int32.Parse(parameter[2]);
-              strresult = connection.DBSize(dbid);
+              return connection.DBFlush(dbid);
 
-              return strresult;
 
-            case "dbkeys":
-
+            case "dbkeys": // done
               dbid = Int32.Parse(parameter[2]);
               key = parameter[3];
               strresult = connection.DBKeys(dbid, key);
               return strresult;
 
 
+            case "dbsize": // done
+
+              dbid = Int32.Parse(parameter[2]);
+              strresult = connection.DBSize(dbid);
+
+              return strresult;
 
 
-
-            case "delete": //done
+            case "delete": // done
               dbid = Int32.Parse(parameter[2]);
               key = parameter[3];
               strresult = connection.KeyDelete(dbid, key);
