@@ -95,7 +95,7 @@ namespace A3Redis
 
         case "redis":
 
-          switch(parameter[1])
+          switch (parameter[1])
           {
             case "connect":
               connection.Connect(); //todo checks
@@ -135,7 +135,7 @@ namespace A3Redis
               key = parameter[3];
               value = parameter[4];
               strresult = connection.SetString(dbid, key, value);
-              if(strresult == "OK")
+              if (strresult == "OK")
               {
                 return RETURNTRUE;
               } else
@@ -160,14 +160,12 @@ namespace A3Redis
               dbid = Int32.Parse(parameter[2]);
               key = parameter[3];
               strresult = connection.DBKeys(dbid, key);
-              return strresult;
+              return  strresult;
 
 
             case "dbsize": // done
-
               dbid = Int32.Parse(parameter[2]);
               strresult = connection.DBSize(dbid);
-
               return strresult;
 
 
