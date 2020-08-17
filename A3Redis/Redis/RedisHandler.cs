@@ -289,7 +289,9 @@ namespace A3Redis.Redis
     public string DBKeys(int dbid, string regex)
     {
       string[] args = { "KEYS", regex };
-      return SendCommand(dbid, args);
+      var ret = SendCommand(dbid, args);
+      ret = ret.Replace("\"\"", "\"");
+      return ret;
     }
 
 
