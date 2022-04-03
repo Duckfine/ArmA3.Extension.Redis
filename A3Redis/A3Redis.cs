@@ -1,17 +1,6 @@
 ﻿using A3Redis.Redis;
-using A3Redis_CS.util;
 using Maca134.Arma.DllExport;
 using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-
-
 
 /*
 
@@ -20,14 +9,6 @@ using System.Threading.Tasks;
     Example:
     (ignore case)
     0:VERSION:asdf --> return: "v1.0"
-
-    todo make the console in another thread because the entire game stops when copying something frome the console WTF
-
-    todo make checks if parameter is set becaus then the whole server crashes
-
-
-  todo sorted set
-  todo implement logging for redis that every query is logged down to a file
 
 */
 
@@ -39,13 +20,6 @@ namespace A3Redis
     public const string RETURNFALSE = "FALSE";
 
 
-
-
-
-
-
-
-
     private static bool FirstStart = true;
 
     private static string ret;
@@ -55,14 +29,6 @@ namespace A3Redis
     private static string password = "";
 
     private static RedisHandler connection;
-
-
-
-
-
-
-
-
 
 
     [ArmaDllExport]
@@ -82,15 +48,13 @@ namespace A3Redis
       //todo connection check with every call
 
 
-    String[] parameter = function.Split(':');
+      String[] parameter = function.Split(':');
 
       switch (parameter[0])
       {
         case "version":
           ret = "A3Redis by Duckfine V0110";
           break;
-
-
 
 
         case "redis":
@@ -125,7 +89,8 @@ namespace A3Redis
               if (result)
               {
                 return RETURNTRUE;
-              } else
+              }
+              else
               {
                 return RETURNFALSE;
               }
@@ -138,7 +103,8 @@ namespace A3Redis
               if (strresult == "OK")
               {
                 return RETURNTRUE;
-              } else
+              }
+              else
               {
                 return RETURNFALSE;
               }
@@ -160,7 +126,7 @@ namespace A3Redis
               dbid = Int32.Parse(parameter[2]);
               key = parameter[3];
               strresult = connection.DBKeys(dbid, key);
-              return  strresult;
+              return strresult;
 
 
             case "dbsize": // done
@@ -173,10 +139,11 @@ namespace A3Redis
               dbid = Int32.Parse(parameter[2]);
               key = parameter[3];
               strresult = connection.KeyDelete(dbid, key);
-              if(strresult == "1")
+              if (strresult == "1")
               {
                 return RETURNTRUE; //erfolgreich gelöscht
-              } else
+              }
+              else
               {
                 return RETURNFALSE; //eintrag nicht vorhanden -> bereits gelöscht
               }
@@ -226,26 +193,21 @@ namespace A3Redis
               index = parameter[4];
               value = parameter[5];
               strresult = connection.ListUpdate(dbid, key, index, value);
-              if(strresult == "OK")
+              if (strresult == "OK")
               {
                 return RETURNTRUE;
-              } else
+              }
+              else
               {
                 return RETURNFALSE;
               }
-
-
           }
 
 
-
-
           break;
-
-         
       }
 
-      
+
       return ret;
     }
 
@@ -254,12 +216,6 @@ namespace A3Redis
     {
       connection = new RedisHandler(hostname, port, password);
       connection.Connect();
-
-
     }
-
-
-
-
   }
 }
