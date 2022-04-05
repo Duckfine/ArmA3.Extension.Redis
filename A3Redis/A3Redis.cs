@@ -1,6 +1,5 @@
-﻿using A3Redis.Redis;
-using Maca134.Arma.DllExport;
-using System;
+﻿using System;
+using A3Redis.Redis;
 
 /*
 
@@ -31,7 +30,6 @@ namespace A3Redis
     private static RedisHandler connection;
 
 
-    [ArmaDllExport]
     public static string DUCExtension(string function, int outputSize)
     {
       if (FirstStart)

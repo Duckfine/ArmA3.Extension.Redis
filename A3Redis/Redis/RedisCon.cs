@@ -20,7 +20,7 @@ namespace A3Redis.Redis
 
     public RedisCon(string hostname, int port, string password)
     {
-      this.m_hostname = 
+      this.m_hostname = hostname;
     }
 
 

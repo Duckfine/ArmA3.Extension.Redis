@@ -3,10 +3,10 @@ using System.Text;
 
 namespace A3RedisNET
 {
-  public class EntryPoint
+  public class Main
   {
     [UnmanagedCallersOnly(EntryPoint = "RVExtension")]
-    public unsafe static void RVExtension(char* output, int outputSize, char* function)
+    public static unsafe void RVExtension(char* output, int outputSize, char* function)
     {
       string parameter = Marshal.PtrToStringAnsi((IntPtr) function);
 

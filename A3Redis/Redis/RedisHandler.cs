@@ -4,7 +4,6 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net.Sockets;
-using System.Runtime.Remoting.Proxies;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -12,16 +11,13 @@ namespace A3Redis.Redis
 {
   public class RedisHandler
   {
-
     NetworkStream m_netstream;
     TcpClient m_tcpClient;
-
 
 
     String m_hostname;
     int m_port;
     string m_password;
-
 
 
     public RedisHandler(string hostname, int port, string password)
@@ -32,10 +28,9 @@ namespace A3Redis.Redis
     }
 
     #region Connecting
+
     public void Connect()
     {
-
-
       m_tcpClient = new TcpClient();
       m_tcpClient.Connect(m_hostname, m_port);
 
@@ -47,7 +42,6 @@ namespace A3Redis.Redis
       else
       {
         Console.WriteLine("Verbindung fehlgeschlagen!");
-
       }
     }
 
@@ -69,7 +63,7 @@ namespace A3Redis.Redis
     {
       try
       {
-        string[] toSend = { "INFO" };
+        string[] toSend = {"INFO"};
         SendBuildCommand(toSend);
         //todo handle response
         return true;
@@ -84,7 +78,6 @@ namespace A3Redis.Redis
 
     #region Core
 
-
     public void SendBuildCommand(String[] args)
     {
       StringBuilder output = new StringBuilder("*");
@@ -94,11 +87,11 @@ namespace A3Redis.Redis
       {
         output.Append("$" + item.Length + "\r\n" + item + "\r\n");
       }
+
       String toSend = output.ToString();
       byte[] bytes = Encoding.UTF8.GetBytes(toSend);
       m_netstream.Write(bytes, 0, bytes.Length);
     }
-
 
 
     private string GetResponse()
@@ -107,7 +100,7 @@ namespace A3Redis.Redis
 
       // Read can return anything from 0 to numBytesToRead. 
       // This method blocks until at least one byte is read.
-      m_netstream.Read(bytes, 0, (int)m_tcpClient.ReceiveBufferSize);
+      m_netstream.Read(bytes, 0, (int) m_tcpClient.ReceiveBufferSize);
 
       // Returns the data received from the host to the console.
       string returndata = Encoding.UTF8.GetString(bytes);
@@ -128,18 +121,15 @@ namespace A3Redis.Redis
       String[] proc = rawResp.Split('\r');
 
 
-
-
-      if (proc[0].StartsWith("+"))// Simple String
+      if (proc[0].StartsWith("+")) // Simple String
       {
         Console.WriteLine("Simple String received");
         proc[0] = proc[0].Substring(1);
         return proc[0];
       }
       else if
-     (proc[0].StartsWith("-")) // Error
+        (proc[0].StartsWith("-")) // Error
       {
-
       }
       else if (proc[0].StartsWith(":")) // Integer
       {
@@ -153,8 +143,6 @@ namespace A3Redis.Redis
       }
       else if (proc[0].StartsWith("*")) // array
       {
-
-
         int arrSize;
         if (!Int32.TryParse(proc[0].Substring(1), out arrSize)) return rawResp; // Failed
         string[] arr = String.Join("", proc).Split('$');
@@ -178,8 +166,8 @@ namespace A3Redis.Redis
           {
             sub = 2;
           }
-          tmp = arr[i].Substring(sub);
 
+          tmp = arr[i].Substring(sub);
 
 
           if (tmp.ToLower() == "false") // bool?
@@ -201,35 +189,27 @@ namespace A3Redis.Redis
 
 
           result = result + toAdd + ", ";
-
-
         }
+
         result = result.Substring(0, result.Length - 2);
         result += "]";
 
 
         return result;
-
-
       }
 
       return rawResp;
-
     }
 
 
     private string SendCommand(int dbid, string[] args)
     {
-      string[] send = { "SELECT", dbid.ToString() };
+      string[] send = {"SELECT", dbid.ToString()};
       SendBuildCommand(send);
       HandleResponse();
       SendBuildCommand(args);
       return HandleResponse();
     }
-
-
-
-
 
     #endregion Core
 
@@ -238,41 +218,35 @@ namespace A3Redis.Redis
 
     public string SetString(int dbid, String key, String value)
     {
-      string[] args = { "SET", key, value };
+      string[] args = {"SET", key, value};
       return SendCommand(dbid, args);
     }
 
     public string AddToList(int dbid, String key, String value)
     {
-      string[] args = { "RPUSH", key, value };
+      string[] args = {"RPUSH", key, value};
       return SendCommand(dbid, args);
     }
 
     public string ListUpdate(int dbid, String key, String index, String value)
     {
-      string[] args = { "LSET", key, index, value };
+      string[] args = {"LSET", key, index, value};
       return SendCommand(dbid, args);
     }
 
     public string KeyDelete(int dbid, String key)
     {
-      string[] args = { "DEL", key };
+      string[] args = {"DEL", key};
       return SendCommand(dbid, args);
     }
-
-
-
-
 
     #endregion Setters
 
     #region Getters
 
-
-
     public bool KeyExists(int dbid, string key)
     {
-      string[] args = { "EXISTS", key };
+      string[] args = {"EXISTS", key};
 
       string result = SendCommand(dbid, args);
 
@@ -284,11 +258,11 @@ namespace A3Redis.Redis
       {
         return false;
       }
-
     }
+
     public string DBKeys(int dbid, string regex)
     {
-      string[] args = { "KEYS", regex };
+      string[] args = {"KEYS", regex};
       var ret = SendCommand(dbid, args);
       ret = ret.Replace("\"\"", "\"");
       return ret;
@@ -297,19 +271,14 @@ namespace A3Redis.Redis
 
     public string DBFlush(int dbid)
     {
-      string[] args = { "FLUSHDB" };
+      string[] args = {"FLUSHDB"};
       return SendCommand(dbid, args);
     }
 
 
-
-
-
-
-
     public string DBSize(int dbid)
     {
-      string[] args = { "DBSIZE" };
+      string[] args = {"DBSIZE"};
 
       string result = SendCommand(dbid, args);
 
@@ -317,40 +286,33 @@ namespace A3Redis.Redis
       {
         return res.ToString();
       }
+
       return "-1";
     }
-
-    
-
-
 
 
     public string GetEntry(int dbid, string key)
     {
-      string[] args = { "GET", key };
+      string[] args = {"GET", key};
 
       return SendCommand(dbid, args);
     }
 
 
-
     public string ListGetEntry(int dbid, string key, string index)
     {
-      string[] args = { "LINDEX", key, index.ToString() };
+      string[] args = {"LINDEX", key, index.ToString()};
 
       return SendCommand(dbid, args);
     }
 
     public string ListGetSize(int dbid, string key)
     {
-      string[] args = { "LLEN", key };
+      string[] args = {"LLEN", key};
 
       return SendCommand(dbid, args);
     }
 
     #endregion
-
-
-
   }
 }
