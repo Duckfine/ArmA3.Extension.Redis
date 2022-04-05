@@ -1,7 +1,7 @@
 ﻿using System.Runtime.InteropServices;
 using System.Text;
 
-namespace A3RedisNET
+namespace A3Redis
 {
   public class Main
   {
@@ -11,7 +11,7 @@ namespace A3RedisNET
       string parameter = Marshal.PtrToStringAnsi((IntPtr) function);
 
 
-      string result = A3Redis.A3Redis.DUCExtension(parameter, outputSize);
+      string result = A3Redis.DUCExtension(parameter, outputSize);
       byte[] resultBytes = Encoding.ASCII.GetBytes(result);
 
       Marshal.Copy(resultBytes, 0, (IntPtr)output, resultBytes.Length);
