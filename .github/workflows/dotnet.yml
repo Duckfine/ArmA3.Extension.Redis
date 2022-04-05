@@ -20,6 +20,6 @@ jobs:
     - name: Restore dependencies
       run: dotnet restore
     - name: Install Native-Code-Compiler
-      run: dotnet add package Microsoft.DotNet.ILCompiler --prerelease
+      run: dotnet add A3Redis package Microsoft.DotNet.ILCompiler --prerelease
     - name: Build Native Library
       run: dotnet publish /p:NativeLib=Shared /p:SelfContained=true -r linux-x64
