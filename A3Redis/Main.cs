@@ -11,7 +11,7 @@ namespace A3Redis
       string parameter = Marshal.PtrToStringAnsi((IntPtr) function);
 
 
-      string result = A3Redis.DUCExtension(parameter, outputSize);
+      string result = A3Redis.Extension(parameter, outputSize);
       byte[] resultBytes = Encoding.ASCII.GetBytes(result);
 
       Marshal.Copy(resultBytes, 0, (IntPtr)output, resultBytes.Length);

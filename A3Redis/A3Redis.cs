@@ -30,7 +30,7 @@ namespace A3Redis
     private static RedisHandler connection;
 
 
-    public static string DUCExtension(string function, int outputSize)
+    public static string Extension(string function, int outputSize)
     {
       if (FirstStart)
       {
