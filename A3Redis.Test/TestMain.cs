@@ -23,7 +23,7 @@ namespace A3Redis.Test
         char* input = (char*)NativeMemory.Alloc(OUTPUTSIZE);
 
 
-        bb(output, (Int32)OUTPUTSIZE, "asd");
+        //bb(output, (Int32)OUTPUTSIZE, "asd");
 
 
       }
