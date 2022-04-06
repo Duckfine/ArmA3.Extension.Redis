@@ -1,0 +1,32 @@
+name: .NET
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v2
+      with:
+        dotnet-version: 6.0.x
+    - name: Install Libraries
+      run: sudo apt install llvm cmake clang libicu-dev uuid-dev libcurl4-openssl-dev zlib1g-dev libkrb5-dev libtinfo5
+    - name: Restore dependencies
+      run: dotnet restore
+    - name: Install Native-Code-Compiler
+      run: dotnet add A3Redis package Microsoft.DotNet.ILCompiler --prerelease
+    - name: Build Native Library
+      run: dotnet publish /p:NativeLib=Shared /p:SelfContained=true -r linux-x64
+    - name: Store artifacts
+      uses: actions/upload-artifact@v2
+      with:
+        name: linux-x64
+        path: A3Redis/bin/Debug/net6.0/linux-x64/native
