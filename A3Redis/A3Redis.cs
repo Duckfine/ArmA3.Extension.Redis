@@ -23,7 +23,7 @@ namespace A3Redis
 
     private static string ret;
 
-    private static string hostname = "127.0.0.1";
+    private static string hostname = "172.19.0.2";
     private static int port = 6379;
     private static string password = "";
 
