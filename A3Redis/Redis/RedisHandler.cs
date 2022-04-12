@@ -11,33 +11,37 @@ namespace A3Redis.Redis
 {
   public class RedisHandler
   {
-    NetworkStream m_netstream;
-    TcpClient m_tcpClient;
+    private const int STANDARD_PORT = 6379;
+    private const string STANDARD_PASSWORD = "";
+    
+    
+    private NetworkStream NetworkStream;
+    TcpClient TcpClient;
 
 
-    String m_hostname;
-    int m_port;
-    string m_password;
+    private readonly String Hostname;
+    private readonly int Port;
+    string Password;
 
-
-    public RedisHandler(string hostname, int port, string password)
+    
+    public RedisHandler(string hostname, int port = STANDARD_PORT, string password = STANDARD_PASSWORD)
     {
-      m_hostname = hostname;
-      m_port = port;
-      m_password = password;
+      Hostname = hostname;
+      Port = port;
+      Password = password;
     }
 
     #region Connecting
 
     public void Connect()
     {
-      m_tcpClient = new TcpClient();
-      m_tcpClient.Connect(m_hostname, m_port);
+      TcpClient = new TcpClient();
+      TcpClient.Connect(Hostname, Port);
 
-      if (m_tcpClient.Connected)
+      if (TcpClient.Connected)
       {
         Console.WriteLine("Socket nun zum Server verbunden!");
-        m_netstream = m_tcpClient.GetStream();
+        NetworkStream = TcpClient.GetStream();
       }
       else
       {
@@ -47,7 +51,7 @@ namespace A3Redis.Redis
 
     public void Disconnect()
     {
-      m_tcpClient.Close();
+      TcpClient.Close();
 
       Console.WriteLine("Verbindung wurde getrennt");
     }
@@ -90,17 +94,17 @@ namespace A3Redis.Redis
 
       String toSend = output.ToString();
       byte[] bytes = Encoding.UTF8.GetBytes(toSend);
-      m_netstream.Write(bytes, 0, bytes.Length);
+      NetworkStream.Write(bytes, 0, bytes.Length);
     }
 
 
     private string GetResponse()
     {
-      byte[] bytes = new byte[m_tcpClient.ReceiveBufferSize];
+      byte[] bytes = new byte[TcpClient.ReceiveBufferSize];
 
       // Read can return anything from 0 to numBytesToRead. 
       // This method blocks until at least one byte is read.
-      m_netstream.Read(bytes, 0, (int) m_tcpClient.ReceiveBufferSize);
+      NetworkStream.Read(bytes, 0, (int) TcpClient.ReceiveBufferSize);
 
       // Returns the data received from the host to the console.
       string returndata = Encoding.UTF8.GetString(bytes);
@@ -126,17 +130,14 @@ namespace A3Redis.Redis
         Console.WriteLine("Simple String received");
         proc[0] = proc[0].Substring(1);
         return proc[0];
-      }
-      else if
-        (proc[0].StartsWith("-")) // Error
+      } else if (proc[0].StartsWith("-")) // Error
       {
-      }
-      else if (proc[0].StartsWith(":")) // Integer
+        
+      } else if (proc[0].StartsWith(":")) // Integer
       {
         proc[0] = proc[0].Substring(1);
         return proc[0];
-      }
-      else if (proc[0].StartsWith("$")) // Bulk String (More than 1 string)
+      } else if (proc[0].StartsWith("$")) // Bulk String (More than 1 string)
       {
         if (proc[0] == "$-1\r") return null; //Null returned
         return proc[1];
