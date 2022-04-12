@@ -57,16 +57,16 @@ namespace A3Redis
           switch (parameter[1])
           {
             case "connect":
-              connection.Connect(); //todo checks
+              connection.Connect();
               return "true";
             case "disconnect":
-              connection.Disconnect(); //todo checks
+              connection.Disconnect();
               return "true";
             case "reconnect":
-              connection.Reconnect(); //todo checks
+              connection.Reconnect();
               return "true";
 #if DEBUG
-            case "send": //should not be activated --> security issues disable in release
+            case "send":
               String[] args = new string[parameter.Length - 2];
               for (int i = 2; i < parameter.Length; i++)
                 args[i - 2] = parameter[i];
@@ -75,7 +75,7 @@ namespace A3Redis
               Console.WriteLine(connection.HandleResponse());
               break;
 #endif
-            case "exists": //done
+            case "exists":
               dbid = Int32.Parse(parameter[2]);
               key = parameter[3];
               bool result = connection.KeyExists(dbid, key);
@@ -88,7 +88,7 @@ namespace A3Redis
                 return RETURNFALSE;
               }
 
-            case "set": // done
+            case "set":
               dbid = Int32.Parse(parameter[2]);
               key = parameter[3];
               value = parameter[4];
@@ -103,46 +103,46 @@ namespace A3Redis
               }
 
 
-            case "get": // done
+            case "get":
               dbid = Int32.Parse(parameter[2]);
               key = parameter[3];
               strresult = connection.GetEntry(dbid, key);
               return strresult;
 
 
-            case "dbflush": // done
+            case "dbflush":
               dbid = Int32.Parse(parameter[2]);
               return connection.DBFlush(dbid);
 
 
-            case "dbkeys": // done
+            case "dbkeys":
               dbid = Int32.Parse(parameter[2]);
               key = parameter[3];
               strresult = connection.DBKeys(dbid, key);
               return strresult;
 
 
-            case "dbsize": // done
+            case "dbsize":
               dbid = Int32.Parse(parameter[2]);
               strresult = connection.DBSize(dbid);
               return strresult;
 
 
-            case "delete": // done
+            case "delete":
               dbid = Int32.Parse(parameter[2]);
               key = parameter[3];
               strresult = connection.KeyDelete(dbid, key);
               if (strresult == "1")
               {
-                return RETURNTRUE; //erfolgreich gelöscht
+                return RETURNTRUE;
               }
               else
               {
-                return RETURNFALSE; //eintrag nicht vorhanden -> bereits gelöscht
+                return RETURNFALSE;
               }
 
 
-            case "listadd": //done
+            case "listadd":
               dbid = Int32.Parse(parameter[2]);
               key = parameter[3];
               value = parameter[4];
@@ -150,37 +150,37 @@ namespace A3Redis
               isNumeric = int.TryParse(strresult, out intresult);
               if (isNumeric)
               {
-                return RETURNTRUE; //erfolgreich eingefügt
+                return RETURNTRUE;
               }
               else
               {
-                return RETURNFALSE; //nicht erfolgreich eingefügt unnötig?
+                return RETURNFALSE;
               }
 
 
-            case "listget": //done
+            case "listget":
               dbid = Int32.Parse(parameter[2]);
               index = parameter[3];
               key = parameter[4];
               strresult = connection.ListGetEntry(dbid, index, key);
               return strresult;
 
-            case "listsize": //done
+            case "listsize":
               dbid = Int32.Parse(parameter[2]);
               key = parameter[3];
               strresult = connection.ListGetSize(dbid, key);
               isNumeric = int.TryParse(strresult, out intresult);
               if (isNumeric)
               {
-                return intresult.ToString(); //erfolgreich eingefügt
+                return intresult.ToString();
               }
               else
               {
-                return RETURNFALSE; //nicht erfolgreich eingefügt unnötig?
+                return RETURNFALSE;
               }
 
 
-            case "listupdate": //done
+            case "listupdate":
               dbid = Int32.Parse(parameter[2]);
               key = parameter[3];
               index = parameter[4];
