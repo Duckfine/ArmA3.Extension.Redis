@@ -24,6 +24,12 @@ namespace A3Redis
     private static string Password = "";
     private static RedisHandler RedisConnection;
 
+
+    public static void Initialize()
+    {
+      RedisConnection = new RedisHandler(Hostname, Port, Password);
+    }
+
     public static string Extension(string function, int outputSize)
     {
       if (FirstStart)
@@ -150,12 +156,6 @@ namespace A3Redis
           break;
       }
       return ret;
-    }
-
-
-    public static void Initialize()
-    {
-      RedisConnection = new RedisHandler(Hostname, Port, Password);
     }
   }
 }
