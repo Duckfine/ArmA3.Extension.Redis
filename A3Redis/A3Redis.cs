@@ -17,7 +17,6 @@ namespace A3Redis
     public const string RETURNTRUE = "TRUE";
     public const string RETURNFALSE = "FALSE";
 
-
     private static bool FirstStart = true;
 
     private static string hostname = "172.18.0.2";
@@ -25,7 +24,6 @@ namespace A3Redis
     private static string password = "";
 
     private static RedisHandler connection;
-
 
     public static string Extension(string function, int outputSize)
     {
@@ -40,9 +38,6 @@ namespace A3Redis
       bool isNumeric;
       int intresult, dbid;
 
-      //todo connection check with every call
-
-
       String[] parameter = function.Split(':');
 
       switch (parameter[0])
@@ -51,9 +46,7 @@ namespace A3Redis
           ret = "1.0";
           break;
 
-
-        case "redis":
-
+        default:
           switch (parameter[1])
           {
             case "connect":
@@ -80,13 +73,9 @@ namespace A3Redis
               key = parameter[3];
               bool result = connection.KeyExists(dbid, key);
               if (result)
-              {
                 return RETURNTRUE;
-              }
               else
-              {
                 return RETURNFALSE;
-              }
 
             case "set":
               dbid = Int32.Parse(parameter[2]);
@@ -94,13 +83,9 @@ namespace A3Redis
               value = parameter[4];
               strresult = connection.SetString(dbid, key, value);
               if (strresult == "OK")
-              {
                 return RETURNTRUE;
-              }
               else
-              {
                 return RETURNFALSE;
-              }
 
 
             case "get":
@@ -133,14 +118,9 @@ namespace A3Redis
               key = parameter[3];
               strresult = connection.KeyDelete(dbid, key);
               if (strresult == "1")
-              {
                 return RETURNTRUE;
-              }
               else
-              {
                 return RETURNFALSE;
-              }
-
 
             case "listadd":
               dbid = Int32.Parse(parameter[2]);
@@ -149,14 +129,9 @@ namespace A3Redis
               strresult = connection.AddToList(dbid, key, value);
               isNumeric = int.TryParse(strresult, out intresult);
               if (isNumeric)
-              {
                 return RETURNTRUE;
-              }
               else
-              {
                 return RETURNFALSE;
-              }
-
 
             case "listget":
               dbid = Int32.Parse(parameter[2]);
@@ -171,13 +146,9 @@ namespace A3Redis
               strresult = connection.ListGetSize(dbid, key);
               isNumeric = int.TryParse(strresult, out intresult);
               if (isNumeric)
-              {
                 return intresult.ToString();
-              }
               else
-              {
                 return RETURNFALSE;
-              }
 
 
             case "listupdate":
@@ -187,20 +158,12 @@ namespace A3Redis
               value = parameter[5];
               strresult = connection.ListUpdate(dbid, key, index, value);
               if (strresult == "OK")
-              {
                 return RETURNTRUE;
-              }
               else
-              {
                 return RETURNFALSE;
-              }
           }
-
-
           break;
       }
-
-
       return ret;
     }
 
