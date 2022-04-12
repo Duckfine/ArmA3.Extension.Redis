@@ -12,7 +12,7 @@ namespace A3Redis
 
 
       string result = A3Redis.Extension(parameter, outputSize);
-      byte[] resultBytes = Encoding.ASCII.GetBytes(result);
+      byte[] resultBytes = Encoding.ASCII.GetBytes(result + "\0");
 
       Marshal.Copy(resultBytes, 0, (IntPtr)output, resultBytes.Length);
     }

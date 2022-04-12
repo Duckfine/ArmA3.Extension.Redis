@@ -51,7 +51,7 @@ namespace A3Redis
       switch (parameter[0])
       {
         case "version":
-          ret = "A3Redis by Duckfine V0110";
+          ret = "1.0";
           break;
 
 
@@ -213,7 +213,6 @@ namespace A3Redis
     public static void Initialize()
     {
       connection = new RedisHandler(hostname, port, password);
-      connection.Connect();
     }
   }
 }
