@@ -1,5 +1,4 @@
-﻿using System;
-using A3Redis.Redis;
+﻿using A3Redis.Redis;
 
 /*
 
@@ -21,8 +20,6 @@ namespace A3Redis
 
     private static bool FirstStart = true;
 
-    private static string ret;
-
     private static string hostname = "172.18.0.2";
     private static int port = 6379;
     private static string password = "";
@@ -38,7 +35,7 @@ namespace A3Redis
         Initialize();
       }
 
-      ret = "";
+      string ret = "";
       String key, value, index, strresult = "";
       bool isNumeric;
       int intresult, dbid;
@@ -68,18 +65,16 @@ namespace A3Redis
             case "reconnect":
               connection.Reconnect(); //todo checks
               return "true";
-
+#if DEBUG
             case "send": //should not be activated --> security issues disable in release
               String[] args = new string[parameter.Length - 2];
               for (int i = 2; i < parameter.Length; i++)
-              {
                 args[i - 2] = parameter[i];
-              }
 
               connection.SendBuildCommand(args);
               Console.WriteLine(connection.HandleResponse());
               break;
-
+#endif
             case "exists": //done
               dbid = Int32.Parse(parameter[2]);
               key = parameter[3];
