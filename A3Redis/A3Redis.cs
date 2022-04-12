@@ -138,7 +138,6 @@ namespace A3Redis
               else
                 return RETURNFALSE;
 
-
             case "listupdate":
               dbid = Int32.Parse(parameter[2]);
               key = parameter[3];
