@@ -5,18 +5,19 @@ namespace A3Redis.Redis
 {
   public class RedisHandler
   {
+    private const string STANDARD_HOSTNAME = "localhost";
     private const int STANDARD_PORT = 6379;
     private const string STANDARD_PASSWORD = "";
 
-    private NetworkStream NetworkStream;
     TcpClient TcpClient;
+    private NetworkStream NetworkStream;
 
-    private readonly String Hostname;
+    private readonly string Hostname;
     private readonly int Port;
     string Password;
 
 
-    public RedisHandler(string hostname, int port = STANDARD_PORT, string password = STANDARD_PASSWORD)
+    public RedisHandler(string hostname=STANDARD_HOSTNAME, int port = STANDARD_PORT, string password = STANDARD_PASSWORD)
     {
       Hostname = hostname;
       Port = port;
