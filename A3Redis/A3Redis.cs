@@ -19,11 +19,10 @@ namespace A3Redis
 
     private static bool FirstStart = true;
 
-    private static string hostname = "172.18.0.2";
-    private static int port = 6379;
-    private static string password = "";
-
-    private static RedisHandler connection;
+    private static string Hostname = "172.18.0.2";
+    private static int Port = 6379;
+    private static string Password = "";
+    private static RedisHandler RedisConnection;
 
     public static string Extension(string function, int outputSize)
     {
@@ -50,100 +49,89 @@ namespace A3Redis
           switch (parameter[1])
           {
             case "connect":
-              connection.Connect();
-              return "true";
+              RedisConnection.Connect();
+              return RETURNTRUE;
             case "disconnect":
-              connection.Disconnect();
-              return "true";
+              RedisConnection.Disconnect();
+              return RETURNTRUE;
             case "reconnect":
-              connection.Reconnect();
-              return "true";
+              RedisConnection.Reconnect();
+              return RETURNTRUE;
+
 #if DEBUG
             case "send":
               String[] args = new string[parameter.Length - 2];
               for (int i = 2; i < parameter.Length; i++)
                 args[i - 2] = parameter[i];
 
-              connection.SendBuildCommand(args);
-              Console.WriteLine(connection.HandleResponse());
+              RedisConnection.SendBuildCommand(args);
+              Console.WriteLine(RedisConnection.HandleResponse());
               break;
 #endif
             case "exists":
               dbid = Int32.Parse(parameter[2]);
               key = parameter[3];
-              bool result = connection.KeyExists(dbid, key);
-              if (result)
-                return RETURNTRUE;
-              else
-                return RETURNFALSE;
+              bool result = RedisConnection.KeyExists(dbid, key);
+              return result ? RETURNTRUE : RETURNFALSE;
 
             case "set":
               dbid = Int32.Parse(parameter[2]);
               key = parameter[3];
               value = parameter[4];
-              strresult = connection.SetString(dbid, key, value);
-              if (strresult == "OK")
-                return RETURNTRUE;
-              else
-                return RETURNFALSE;
+              strresult = RedisConnection.SetString(dbid, key, value);
+              return strresult == "OK" ? RETURNTRUE : RETURNFALSE;
 
 
             case "get":
               dbid = Int32.Parse(parameter[2]);
               key = parameter[3];
-              strresult = connection.GetEntry(dbid, key);
+              strresult = RedisConnection.GetEntry(dbid, key);
               return strresult;
 
 
             case "dbflush":
               dbid = Int32.Parse(parameter[2]);
-              return connection.DBFlush(dbid);
+              return RedisConnection.DBFlush(dbid);
 
 
             case "dbkeys":
               dbid = Int32.Parse(parameter[2]);
               key = parameter[3];
-              strresult = connection.DBKeys(dbid, key);
+              strresult = RedisConnection.DBKeys(dbid, key);
               return strresult;
 
 
             case "dbsize":
               dbid = Int32.Parse(parameter[2]);
-              strresult = connection.DBSize(dbid);
+              strresult = RedisConnection.DBSize(dbid);
               return strresult;
 
 
             case "delete":
               dbid = Int32.Parse(parameter[2]);
               key = parameter[3];
-              strresult = connection.KeyDelete(dbid, key);
-              if (strresult == "1")
-                return RETURNTRUE;
-              else
-                return RETURNFALSE;
+              strresult = RedisConnection.KeyDelete(dbid, key);
+              return strresult == "1" ? RETURNTRUE : RETURNFALSE;
 
             case "listadd":
               dbid = Int32.Parse(parameter[2]);
               key = parameter[3];
               value = parameter[4];
-              strresult = connection.AddToList(dbid, key, value);
+              strresult = RedisConnection.AddToList(dbid, key, value);
               isNumeric = int.TryParse(strresult, out intresult);
-              if (isNumeric)
-                return RETURNTRUE;
-              else
-                return RETURNFALSE;
+              return isNumeric ? RETURNTRUE : RETURNFALSE;
 
             case "listget":
               dbid = Int32.Parse(parameter[2]);
               index = parameter[3];
               key = parameter[4];
-              strresult = connection.ListGetEntry(dbid, index, key);
+              strresult = RedisConnection.ListGetEntry(dbid, index, key);
               return strresult;
 
             case "listsize":
               dbid = Int32.Parse(parameter[2]);
               key = parameter[3];
-              strresult = connection.ListGetSize(dbid, key);
+              strresult = RedisConnection.ListGetSize(dbid, key);
               isNumeric = int.TryParse(strresult, out intresult);
               if (isNumeric)
                 return intresult.ToString();
@@ -156,11 +144,9 @@ namespace A3Redis
               key = parameter[3];
               index = parameter[4];
               value = parameter[5];
-              strresult = connection.ListUpdate(dbid, key, index, value);
-              if (strresult == "OK")
-                return RETURNTRUE;
-              else
-                return RETURNFALSE;
+              strresult = RedisConnection.ListUpdate(dbid, key, index, value);
+
+              return strresult == "OK" ? RETURNTRUE : RETURNFALSE;
           }
           break;
       }
@@ -170,7 +156,7 @@ namespace A3Redis
 
     public static void Initialize()
     {
-      connection = new RedisHandler(hostname, port, password);
+      RedisConnection = new RedisHandler(Hostname, Port, Password);
     }
   }
 }
