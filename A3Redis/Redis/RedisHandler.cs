@@ -24,7 +24,6 @@ namespace A3Redis.Redis
       Password = password;
     }
 
-
     #region Connecting
     public void Connect()
     {
