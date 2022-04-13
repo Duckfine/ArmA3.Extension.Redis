@@ -3,7 +3,7 @@ using System.Text;
 
 namespace A3Redis.Redis
 {
-  public class RedisHandler
+  public class RedisConnectionTcpClientAdapter : RedisConnection
   {
     private const string STANDARD_HOSTNAME = "localhost";
     private const int STANDARD_PORT = 6379;
@@ -17,7 +17,7 @@ namespace A3Redis.Redis
     string Password;
 
 
-    public RedisHandler(string hostname=STANDARD_HOSTNAME, int port = STANDARD_PORT, string password = STANDARD_PASSWORD)
+    public RedisConnectionTcpClientAdapter(string hostname=STANDARD_HOSTNAME, int port = STANDARD_PORT, string password = STANDARD_PASSWORD)
     {
       Hostname = hostname;
       Port = port;
@@ -43,7 +43,7 @@ namespace A3Redis.Redis
       Connect();
     }
 
-    public bool CheckConnection()
+    public bool IsConnected()
     {
       try
       {
@@ -61,7 +61,7 @@ namespace A3Redis.Redis
 
 
     #region Core
-    public void SendBuildCommand(String[] args)
+    public void SendBuildCommand(string[] args)
     {
       StringBuilder output = new StringBuilder("*");
       output.Append(args.Length + "\r\n");
@@ -157,7 +157,7 @@ namespace A3Redis.Redis
       return rawResp;
     }
 
-    private string SendCommand(int dbid, string[] args)
+    public string SendCommand(int dbid, string[] args)
     {
       string[] send = { "SELECT", dbid.ToString() };
       SendBuildCommand(send);
@@ -169,19 +169,19 @@ namespace A3Redis.Redis
 
 
     #region Setters
-    public string SetString(int dbid, String key, String value)
+    public string SetString(int dbid, string key, string value)
     {
       string[] args = { "SET", key, value };
       return SendCommand(dbid, args);
     }
 
-    public string AddToList(int dbid, String key, String value)
+    public string AddToList(int dbid, string key, string value)
     {
       string[] args = { "RPUSH", key, value };
       return SendCommand(dbid, args);
     }
 
-    public string ListUpdate(int dbid, String key, String index, String value)
+    public string ListUpdate(int dbid, string key, string index, string value)
     {
       string[] args = { "LSET", key, index, value };
       return SendCommand(dbid, args);
@@ -232,13 +232,13 @@ namespace A3Redis.Redis
       return SendCommand(dbid, args);
     }
 
-    public string ListGetEntry(int dbid, string key, string index)
+    public string GetListEntry(int dbid, string key, string index)
     {
       string[] args = { "LINDEX", key, index.ToString() };
       return SendCommand(dbid, args);
     }
 
-    public string ListGetSize(int dbid, string key)
+    public string GetListSize(int dbid, string key)
     {
       string[] args = { "LLEN", key };
       return SendCommand(dbid, args);

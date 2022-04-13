@@ -26,7 +26,7 @@ namespace A3Redis.Test.API
       }
       catch (Exception ex)
       {
-        throw new CallExtensionException(ex.Message);
+        throw ex;
       }
 
     }
