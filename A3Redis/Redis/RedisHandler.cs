@@ -192,12 +192,10 @@ namespace A3Redis.Redis
       string[] args = { "DEL", key };
       return SendCommand(dbid, args);
     }
-
     #endregion Setters
 
 
     #region Getters
-
     public bool KeyExists(int dbid, string key)
     {
       string[] args = { "EXISTS", key };
