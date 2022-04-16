@@ -4,7 +4,7 @@ using A3Redis.Redis;
 
 namespace A3Redis
 {
-  public class Main
+  public unsafe class Main
   {
     public static bool notInitialized = true;
     public static RedisExtension RedisExtension;
