@@ -6,7 +6,7 @@ on:
   pull_request:
     branches: [ master ]
   schedule:
-    - cron: 0 7 1,7,14,21,28 * *
+    - cron: "0 5 * * 1"
 
 jobs:
   build:
@@ -32,3 +32,4 @@ jobs:
       with:
         name: linux-x64
         path: A3Redis/bin/Debug/net6.0/linux-x64/native
+        retention-days: 14
