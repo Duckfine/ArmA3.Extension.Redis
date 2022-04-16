@@ -32,3 +32,4 @@ jobs:
       with:
         name: linux-x64
         path: A3Redis/bin/Debug/net6.0/linux-x64/native
+        retention-days: 14
