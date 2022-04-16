@@ -4,8 +4,12 @@ using System.Text;
 
 namespace A3Redis.Test.API
 {
-  public unsafe static class ExtensionCaller
+  public static unsafe class ExtensionCaller
   {
+    //static delegate* unmanaged<char*, int, char*, void> CALLEXT = &Main.RVExtension;
+
+    [DllImport("A3Redis", CallingConvention = CallingConvention.Cdecl)]
+    public static extern void RVExtension(char* output, int outputSize, char* function);
     public static string CallExtension(string param)
     {
       try
@@ -17,8 +21,7 @@ namespace A3Redis.Test.API
 
 
         Marshal.Copy(paramBytes, 0, (IntPtr)argument, paramBytes.Length);
-        delegate* unmanaged<char*, int, char*, void> bb = &Main.RVExtension;
-        bb(output, (Int32)OUTPUTSIZE, argument);
+        RVExtension(output, (Int32)OUTPUTSIZE, argument);
 
 
         string callExtensionResult = Marshal.PtrToStringAnsi((IntPtr)output);
@@ -29,13 +32,6 @@ namespace A3Redis.Test.API
         throw ex;
       }
 
-    }
-  }
-
-  public class CallExtensionException : Exception
-  {
-    public CallExtensionException(string message)
-    {
     }
   }
 }

@@ -5,6 +5,11 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+    <AssemblyName>$(MSBuildProjectName)_x64</AssemblyName>
   </PropertyGroup>
+
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="set source=$(OutDir)$(AssemblyName).dll&#xD;&#xA;set destination=$(SolutionDir)..\arma3-koth\src\root&#xD;&#xA;echo Copying &quot;%25source%25&quot; to &quot;%25destination%25&quot;&#xD;&#xA;xcopy &quot;%25source%25&quot; &quot;%25destination%25&quot; /Y" />
+  </Target>
 
 </Project>

@@ -25,20 +25,8 @@ namespace A3Redis
       RedisConnection = connection;
     }
 
-
-    public void Initialize()
-    {
-      RedisConnection = new RedisConnectionTcpClientAdapter(Hostname, Port, Password);
-    }
-
     public string HandleCommand(string command)
     {
-      if (FirstStart)
-      {
-        FirstStart = false;
-        Initialize();
-      }
-
       string ret = "";
       String key, value, index, strresult = "";
       bool isNumeric;
@@ -57,8 +45,7 @@ namespace A3Redis
           break;
 
         case "connect":
-          RedisConnection.Connect();
-          return RETURNTRUE;
+          return HandleConnectCommand();
         case "disconnect":
           RedisConnection.Disconnect();
           return RETURNTRUE;
@@ -156,6 +143,21 @@ namespace A3Redis
           return strresult == "OK" ? RETURNTRUE : RETURNFALSE;
       }
       return ret;
+    }
+
+    private string HandleConnectCommand()
+    {
+      if (RedisConnection.IsConnected())
+        return RETURN_ALREADY_CONNECTED;
+      try
+      {
+        RedisConnection.Connect();
+        return RETURN_SUCCESS;
+      }
+      catch (Exception ex)
+      {
+        return "Connection error: " + ex.Message;
+      }
     }
   }
 }

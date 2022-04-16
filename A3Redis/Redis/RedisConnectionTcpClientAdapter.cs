@@ -22,12 +22,12 @@ namespace A3Redis.Redis
       Hostname = hostname;
       Port = port;
       Password = password;
+      TcpClient = new TcpClient();
     }
 
     #region Connecting
     public void Connect()
     {
-      TcpClient = new TcpClient();
       TcpClient.Connect(Hostname, Port);
       NetworkStream = TcpClient.GetStream();
     }
@@ -45,17 +45,7 @@ namespace A3Redis.Redis
 
     public bool IsConnected()
     {
-      try
-      {
-        string[] toSend = { "INFO" };
-        SendBuildCommand(toSend);
-        //todo handle response
-        return true;
-      }
-      catch
-      {
-        return false;
-      }
+      return TcpClient.Connected;
     }
     #endregion Connecting
 

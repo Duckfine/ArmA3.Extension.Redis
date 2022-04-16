@@ -6,14 +6,16 @@ namespace A3Redis
 {
   public class Main
   {
-    public static bool notInitialized = false;
+    public static bool notInitialized = true;
     public static RedisExtension RedisExtension;
 
+#if RELEASE
     [UnmanagedCallersOnly(EntryPoint = "RVExtension")]
+#endif
     public static unsafe void RVExtension(char* output, int outputSize, char* function)
     {
       if (notInitialized)
-        RedisExtension = new RedisExtension(new RedisConnectionTcpClientAdapter());
+        RedisExtension = new RedisExtension(new RedisConnectionTcpClientAdapter("172.18.0.3"));
 
       string parameter = Marshal.PtrToStringAnsi((IntPtr) function);
 
