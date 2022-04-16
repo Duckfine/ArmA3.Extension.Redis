@@ -9,9 +9,8 @@ namespace A3Redis
     public static bool notInitialized = true;
     public static RedisExtension RedisExtension;
 
-#if RELEASE
+
     [UnmanagedCallersOnly(EntryPoint = "RVExtension")]
-#endif
     public static unsafe void RVExtension(char* output, int outputSize, char* function)
     {
       if (notInitialized)
