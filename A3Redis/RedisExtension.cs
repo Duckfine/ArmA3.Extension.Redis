@@ -25,6 +25,11 @@ namespace A3Redis
       RedisConnection = connection;
     }
 
+    public static string Version()
+    {
+      return "1.0";
+    }
+
     public string HandleCommand(string command)
     {
       string ret = "";

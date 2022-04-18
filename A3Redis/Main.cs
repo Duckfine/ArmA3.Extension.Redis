@@ -24,5 +24,16 @@ namespace A3Redis
 
       Marshal.Copy(resultBytes, 0, (IntPtr)output, resultBytes.Length);
     }
+
+[UnmanagedCallersOnly(EntryPoint = "RVExtensionVersion")]
+    public static unsafe void RVExtensionVersion(char* output, int outputSize)
+    {
+      string result = RedisExtension.Version();
+      byte[] resultBytes = Encoding.ASCII.GetBytes(result + "\0");
+
+      Marshal.Copy(resultBytes, 0, (IntPtr)output, resultBytes.Length);
+    }
+
+
   }
 }

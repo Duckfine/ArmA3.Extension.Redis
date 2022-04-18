@@ -11,6 +11,7 @@ namespace A3Redis.Test
     public void TestVersion()
     {
       Assert.Equal("1.0", ExtensionCaller.CallExtension("version"));
+      Assert.Equal("1.0", ExtensionCaller.RVExtensionVersion());
     }
 
     [Fact]
