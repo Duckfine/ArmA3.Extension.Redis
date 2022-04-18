@@ -23,6 +23,7 @@ namespace A3Redis
     public RedisExtension(RedisConnection connection)
     {
       RedisConnection = connection;
+      HandleConnectCommand();
     }
 
     public static string Version()
