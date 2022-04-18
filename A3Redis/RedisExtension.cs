@@ -37,7 +37,7 @@ namespace A3Redis
       bool isNumeric;
       int intresult, dbid;
 
-      String[] parameter = command.Split(' ');
+      String[] parameter = command.Split(':');
 
       switch (parameter[0])
       {
