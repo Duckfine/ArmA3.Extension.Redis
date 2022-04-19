@@ -14,7 +14,7 @@ namespace A3Redis
     public static unsafe void RVExtension(char* output, int outputSize, char* function)
     {
       if (notInitialized)
-        RedisExtension = new RedisExtension(new RedisConnectionTcpClientAdapter("172.18.0.3"));
+        RedisExtension = new RedisExtension(new RedisConnectionTcpClientAdapter("172.18.0.2"));
 
       string parameter = Marshal.PtrToStringAnsi((IntPtr) function);
 
